@@ -1,0 +1,12 @@
+.menu-bar {
+    display: flex;
+    justify-content: space-between;
+    width: 100vw;
+    /* background-color: black; */
+  }
+  
+
+  .blue-background {
+    background-color: blue;
+  }
+  
