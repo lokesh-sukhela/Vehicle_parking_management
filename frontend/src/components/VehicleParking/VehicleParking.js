@@ -1,13 +1,16 @@
-import {React, useState } from 'react';
+import { React, useState } from 'react';
 import VehicleService from '../../services/VehicleService'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../../src/style.css'
 import { toast } from 'react-toastify';
+import { useParams } from 'react-router-dom';
+import { useEffect } from 'react';
 function VehicleParking() {
   const [vehicleType, setVehicleType] = useState('2-wheeler');
   const [numberPlate, setNumberPlate] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
+  const { id } = useParams();
 
   const indianNumberPlateRegex = /^[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{1,4}$/;
 
@@ -18,10 +21,25 @@ function VehicleParking() {
   const handleNumberPlateChange = (e) => {
     setNumberPlate(e.target.value);
   };
-
+  useEffect(() => {
+    // Fetch the vehicle data for editing using the vehicle ID
+    async function fetchVehicleData() {
+      try {
+        const response = await VehicleService.getVehicleById(id);
+        const vehicleData = response.data;
+        // Update your component state with the fetched data
+      } catch (error) {
+        console.error('Error fetching vehicle data:', error);
+      }
+    }
+  
+    if (id) {
+      fetchVehicleData();
+    }
+  }, [id]);
   const [parkingFee, setParkingFee] = useState(0); // Initialize parking fee to 0
 
-const calculateParkingFee = (vehicleType, start, end) => {
+  const calculateParkingFee = (vehicleType, start, end) => {
     const startDateTime = new Date(start);
     const endDateTime = new Date(end);
     const durationInHours = (endDateTime - startDateTime) / (1000 * 60 * 60); // Convert milliseconds to hours
@@ -29,22 +47,22 @@ const calculateParkingFee = (vehicleType, start, end) => {
     // Define fee structures for different vehicle types
     const feeStructure = {
       '2-wheeler': [
-        { maxHours: 3, fee: 5 },
-        { maxHours: 6, fee: 10 },
-        { maxHours: 12, fee: 12 },
-        { maxHours: 24, fee: 20 },
-      ],
-      '3-wheeler': [
-        { maxHours: 3, fee: 7 },
-        { maxHours: 6, fee: 12 },
-        { maxHours: 12, fee: 15 },
-        { maxHours: 24, fee: 25 },
-      ],
-      '4-wheeler': [
         { maxHours: 3, fee: 10 },
         { maxHours: 6, fee: 15 },
         { maxHours: 12, fee: 20 },
         { maxHours: 24, fee: 30 },
+      ],
+      '3-wheeler': [
+        { maxHours: 3, fee: 15 },
+        { maxHours: 6, fee: 25 },
+        { maxHours: 12, fee: 30 },
+        { maxHours: 24, fee: 40 },
+      ],
+      '4-wheeler': [
+        { maxHours: 3, fee: 20 },
+        { maxHours: 6, fee: 30 },
+        { maxHours: 12, fee: 40 },
+        { maxHours: 24, fee: 50 },
       ],
     };
 
@@ -63,7 +81,7 @@ const calculateParkingFee = (vehicleType, start, end) => {
     // For more than 24 hours, charge 20 per day
     if (durationInHours > 24) {
       const days = Math.floor(durationInHours / 24);
-      fee = fee + 20 * days;
+      fee = fee + 40 * days;
     }
 
     return fee;
@@ -80,14 +98,14 @@ const calculateParkingFee = (vehicleType, start, end) => {
   const handleStartTimeChange = (e) => {
     setStartTime(e.target.value);
     // Recalculate parking fee when start time is changed
-    const fee = calculateParkingFee(vehicleType,e.target.value, endTime);
+    const fee = calculateParkingFee(vehicleType, e.target.value, endTime);
     setParkingFee(fee);
   };
 
   const handleEndTimeChange = (e) => {
     setEndTime(e.target.value);
     // Recalculate parking fee when end time is changed
-    const fee = calculateParkingFee(vehicleType,startTime, e.target.value);
+    const fee = calculateParkingFee(vehicleType, startTime, e.target.value);
     setParkingFee(fee);
   };
   const handleSubmit = async (e) => {
@@ -98,13 +116,13 @@ const calculateParkingFee = (vehicleType, start, end) => {
     }
     // Create an object to hold the form data
     const startTimeTimestamp = new Date(startTime).getTime();
-const endTimeTimestamp = new Date(endTime).getTime();
+    const endTimeTimestamp = new Date(endTime).getTime();
 
-if (startTimeTimestamp >= endTimeTimestamp) {
-  // Display error and prevent form submission
-  toast.error('Start time must be greater than end time');
-  return;
-}
+    if (startTimeTimestamp >= endTimeTimestamp) {
+      // Display error and prevent form submission
+      toast.error('Start time must be greater than end time');
+      return;
+    }
     const formData = {
       vehicleType,
       numberPlate,
@@ -131,73 +149,73 @@ if (startTimeTimestamp >= endTimeTimestamp) {
       console.error('Error sending data to the backend:', error);
     }
   };
-  
 
 
-  
+
+
 
   return (
     <>
-    <h1 className="text-center mt-4">Parking Management System</h1>
-    <div className="container">
-      
-      <form onSubmit={handleSubmit}>
-      <div className="form-group">
-          <label>Vehicle Type:</label>
-          <select
-            className="form-control"
-            style={{ width: '100%' }} // Add this inline style
-            value={vehicleType}
-            onChange={handleVehicleTypeChange} 
-          >
-            <option value="2-wheeler">2-wheeler</option>
-            <option value="3-wheeler">3-wheeler</option>
-            <option value="4-wheeler">4-wheeler</option>
-            
-          </select>
-        </div>
-        <div className="form-group">
-          <label>Number Plate:</label>
-          <input
-            style={{ width: '100%' }}
-            type="text"
-            value={numberPlate}
-            onChange={handleNumberPlateChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Start Time:</label>
-          <input
-            style={{ width: '100%' }}
-            type="datetime-local"
-            value={startTime}
-            onChange={handleStartTimeChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>End Time:</label>
-          <input
-            style={{ width: '100%' }}
-            type="datetime-local"
-            value={endTime}
-            onChange={handleEndTimeChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <button className="btn btn-primary" type="submit" style={{ width: '100%' }}>
-            Submit
-          </button>
-        </div>
-        <div className="form-group">
-          <label>Parking Fee:</label>
-          <span className="parking-fee">{parkingFee} Rs</span>
-        </div>
-      </form>
-    </div>
-    </> 
+      <h1 className="text-center mt-4">Parking Management System</h1>
+      <div className="container">
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Vehicle Type:</label>
+            <select
+              className="form-control"
+              style={{ width: '100%' }} // Add this inline style
+              value={vehicleType}
+              onChange={handleVehicleTypeChange}
+            >
+              <option value="2-wheeler">2-wheeler</option>
+              <option value="3-wheeler">3-wheeler</option>
+              <option value="4-wheeler">4-wheeler</option>
+
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Number Plate:</label>
+            <input
+              style={{ width: '100%' }}
+              type="text"
+              value={numberPlate}
+              onChange={handleNumberPlateChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Start Time:</label>
+            <input
+              style={{ width: '100%' }}
+              type="datetime-local"
+              value={startTime}
+              onChange={handleStartTimeChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>End Time:</label>
+            <input
+              style={{ width: '100%' }}
+              type="datetime-local"
+              value={endTime}
+              onChange={handleEndTimeChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <button className="btn btn-primary" type="submit" style={{ width: '100%', background: "#87CEEB", border: "none" }}>
+              Submit
+            </button>
+          </div>
+          <div className="form-group">
+            <label>Parking Fee:</label>
+            <span className="parking-fee">{parkingFee} Rs</span>
+          </div>
+        </form>
+      </div>
+    </>
   );
 }
 

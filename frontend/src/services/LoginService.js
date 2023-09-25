@@ -8,7 +8,7 @@ const saveDetails = async (data) => {
     return saveuserDetails
 }
 
-
+console.log("For login and signup")
 // for Login 
 const checkDetails = async (data) => {
     const checkUserdetails = await axios.post(`${process.env.REACT_APP_PORTSERVER}/loginDetails`, data)

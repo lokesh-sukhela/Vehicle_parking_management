@@ -10,7 +10,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
           key={pageNumber}
           className={`page-item ${currentPage === pageNumber ? 'active' : ''}`}
         >
-          <button
+          <button style={{ background: '#87CEEB ', border: 'none', color: 'white' }}
             className="page-link"
             onClick={() => onPageChange(pageNumber)}
           >

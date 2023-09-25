@@ -4,63 +4,13 @@ import VehicleService from '../../services/VehicleService';
 import VehicleServices from '../../services/VehicleService copy';
 import jsPDF from 'jspdf';
 import Pagination from './Pagination';
-// Function to generate PDF content for a single vehicle
-const generatePDFContent = (vehicle) => (
-  <Document>
-    <Page size="A4">
-      <View style={styles.container}>
-        <Text style={styles.title}>Vehicle Details</Text>
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Attribute</th>
-              <th>Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Vehicle Type</td>
-              <td>{vehicle.vehicleType}</td>
-            </tr>
-            <tr>
-              <td>Number Plate</td>
-              <td>{vehicle.numberPlate}</td>
-            </tr>
-            <tr>
-              <td>Start Time</td>
-              <td>{vehicle.startTime}</td>
-            </tr>
-            <tr>
-              <td>End Time</td>
-              <td>{vehicle.endTime}</td>
-            </tr>
-            <tr>
-              <td>Parking Fee (Rs)</td>
-              <td>{vehicle.parkingFee}</td>
-            </tr>
-          </tbody>
-        </table>
-      </View>
-    </Page>
-  </Document>
-);
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-  },
-  title: {
-    fontSize: 20,
-    marginBottom: 10,
-  },
-});
-
+import { useNavigate } from 'react-router-dom';
 function Dashboard() {
   const [vehicles, setVehicles] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchInput, setSearchInput] = useState('');
   const vehiclesPerPage = 5;
-
+const navigate=useNavigate();
   useEffect(() => {
     // Fetch the list of registered vehicles from your backend API
     async function fetchVehicles() {
@@ -122,6 +72,18 @@ function Dashboard() {
       console.error('Error deleting vehicle:', error);
     }
   };
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const handleEdit = (vehicle) => {
+    setSelectedVehicle(vehicle);
+    navigate(`/edit/${vehicle.id}`); // Use the vehicle ID or any unique identifier
+  };
+// ...
+
+
+
+//delete
+// const editmember=()
+  //search
   const filteredVehicles = vehicles.filter((vehicle) =>
     vehicle.numberPlate.toLowerCase().includes(searchInput.toLowerCase())
   );
@@ -167,15 +129,24 @@ function Dashboard() {
               <td>
                 <button
                   onClick={() => handleGeneratePDF(vehicle)}
-                  style={{ background: 'blue', border: 'none', color: 'white' }}
+                  style={{ background: '#87CEEB ', border: 'none', color: 'white' }}
                 >
                   Generate PDF
                 </button>
               </td>
               <td>
                 <button
+                  onClick={() => handleEdit(vehicle)}
+                  style={{ background: '#87CEEB ', border: 'none', color: 'white' }}
+                >
+                  Edit
+                </button>
+              </td>
+              {/* <td><button onClick={handleEdit}>Edit</button></td> */}
+              <td>
+                <button
                   onClick={() => handleDeleteVehicle(vehicle.id)}
-                  style={{ background: 'red', border: 'none', color: 'white' }}
+                  style={{ background: '#87CEEB ', border: 'none', color: 'white' }}
                 >
                   Delete
                 </button>
@@ -184,7 +155,7 @@ function Dashboard() {
           ))}
         </tbody>
       </table>
-      <Pagination
+      <Pagination 
         currentPage={currentPage}
         totalPages={Math.ceil(vehicles.length / vehiclesPerPage)}
         onPageChange={handlePageChange}

@@ -2,11 +2,15 @@
     display: flex;
     justify-content: space-between;
     width: 100vw;
+    background-color: #87CEEB !important;
     /* background-color: black; */
+    
   }
-  
-
-  .blue-background {
-    background-color: blue;
+  a{
+    color:white !important;
+    text-decoration:none;
   }
-  
+  button.menu-button{
+    background-color: #87CEEB !important;
+  }
+ 

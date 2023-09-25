@@ -45,8 +45,6 @@ function SignInForm() {
         const roles=cookies.get("role");
         
         cookies.set("Email",res.data.userdata.Email);
-
-
         cookies.set("token",res.data.token)
         const token=cookies.get("token");
         console.log(token);
